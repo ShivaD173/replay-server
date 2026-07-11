@@ -10,6 +10,54 @@ import { useState } from "react";
 import GridToolbar2 from "./GridToolbar2";
 import { ReplayRow } from "./readCsv";
 
+function MonIcon({ mon }: Readonly<{ mon: string }>) {
+  const [err, setErr] = useState(false);
+
+  let monName = mon.toLowerCase();
+  if (monName.endsWith("-f")) {
+    monName = monName.replace("-f", "-female");
+  }
+  if (monName.endsWith("-ice") || monName.endsWith("-shadow")) {
+    monName = monName + "-rider";
+  }
+
+  monName = monName
+    .replace(" ", "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace("hisui", "hisuian")
+    .replace("galar", "galarian")
+    .replace("alola", "alolan")
+    .replace("paldea", "paldean");
+  const src = `https://img.pokemondb.net/sprites/home/normal/${monName}.png`;
+  if (err) {
+    return (
+      <Typography
+        variant="body2"
+        title={mon}
+        sx={{
+          width: mon.length * 5,
+          height: 32,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        fontSize={10}
+      >
+        {mon}
+      </Typography>
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt={mon}
+      title={mon}
+      style={{ width: 32, height: 32 }}
+      onError={() => setErr(true)}
+    />
+  );
+}
+
 const columns: GridColDef[] = [
   {
     field: "date",
@@ -28,8 +76,40 @@ const columns: GridColDef[] = [
   { field: "p1", headerName: "Winner", flex: 10 },
   { field: "score", headerName: "Score", flex: 5, sortable: false },
   { field: "p2", headerName: "Loser", flex: 10 },
-  { field: "team1", headerName: "Winning Team", sortable: false, flex: 30 },
-  { field: "team2", headerName: "Losing Team", sortable: false, flex: 30 },
+  {
+    field: "team1",
+    headerName: "Winning Team",
+    sortable: false,
+    width: 300,
+    renderCell: (params: any) => {
+      const row = params.row as ReplayRow;
+      const mons = row.team1.split("/");
+      return (
+        <Stack direction="row" spacing={1}>
+          {mons.map((mon) => (
+            <MonIcon key={mon} mon={mon} />
+          ))}
+        </Stack>
+      );
+    },
+  },
+  {
+    field: "team2",
+    headerName: "Losing Team",
+    sortable: false,
+    width: 300,
+    renderCell: (params: any) => {
+      const row = params.row as ReplayRow;
+      const mons = row.team2.split("/");
+      return (
+        <Stack direction="row" spacing={1}>
+          {mons.map((mon) => (
+            <MonIcon key={mon} mon={mon} />
+          ))}
+        </Stack>
+      );
+    },
+  },
   {
     field: "link",
     headerName: "Link",
@@ -58,13 +138,13 @@ export function ReplayDatagrid({
     a.localeCompare(b),
   );
   const allPlayers = [
-    ...new Set(allRows.map((row) => [row.p1, row.p2]).flatMap((e) => e)),
+    ...new Set(allRows.map((row) => [row.p1, row.p2]).flat()),
   ].sort((a, b) => a.localeCompare(b));
   const allMons = [
     ...new Set(
       allRows
         .map((row) => [...row.team1.split("/"), ...row.team2.split("/")])
-        .flatMap((e) => e),
+        .flat(),
     ),
   ].sort((a, b) => a.localeCompare(b));
 
@@ -114,7 +194,12 @@ export function ReplayDatagrid({
         rows={rrows}
         columns={columns}
         getRowId={(r) => r["id"] ?? ""}
-        initialState={{ pagination: { paginationModel } }}
+        initialState={{
+          pagination: { paginationModel },
+          sorting: {
+            sortModel: [{ field: "date", sort: "desc" }],
+          },
+        }}
         pageSizeOptions={[10, 20, 50, 100]}
         checkboxSelection
         slots={{ toolbar: GridToolbar2 }}
