@@ -20,12 +20,13 @@ Everything assumes this folder is at the same level at the server and client
 - I would highly recommend setting `exports.logchallenges = true` in `pokemon-showdown/config/config.js`
 - Next, play a game and then ensure there is at least 1 log file in `pokemon-showdown/logs`
 - Optional but highly recommended:
-  - Check Lines 840 - 864 of [server/room-battle.js](https://github.com/ShivaD173/pokemon-showdown/blob/master/server/room-battle.ts)
+  - Check Lines 855 - 878 of [server/room-battle.ts](https://github.com/ShivaD173/pokemon-showdown/blob/master/server/room-battle.ts)
   - This ensures any privated game will not generate a replay
   - It also pastes the link in the chat immediately at the end of the game
 
 ## Nginx Setup
-Ensure your nginx config has this inside it
+Ensure your `pokemon-showdown-client` nginx config has this inside it \
+You should already have something that looks similar, but check the `index` and `autoindex`
 ```nginx
     location / {
         root /var/www/pokemon-showdown-client/play.pokemonshowdown.com/;
@@ -35,11 +36,11 @@ Ensure your nginx config has this inside it
 ```
 
 **NOTE**: This assumes your main server is hosted at `index.html`.  \
-If your server is hosted at `testclient.html` (noted by `index testclient.html`) in the above config, you can rename `index.html` in this folder to `testclient.html` \
+If your server is hosted at `testclient-old.html` (noted by `index testclient-old.html`) in the above config, you can rename `index.html` in this folder to `testclient-old.html` \
 Then add this these lines to your `vite.config.ts:11`
 ```ts
       input: {
-        client: 'testclient.html',
+        client: 'testclient-old.html',
       },
 ```
 
