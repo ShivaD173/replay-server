@@ -5,19 +5,10 @@ import re
 from collections import defaultdict
 
 replay_embed_location="https://staraptorshowdown.com/js/replay-embed.js"
-# Helpful to avoid regenerating replays to speed up script
-old_months = ["2023-01", "2023-02", "2023-03", "2023-04",
-              "2023-05", "2023-06", "2023-07", "2023-08",
-              "2023-09", "2023-10", "2023-11", "2023-12",
-              "2024-01", "2024-02", "2024-03", "2024-04",
-              "2024-05", "2024-06", "2024-07", "2024-08",
-              "2024-09", "2024-10", "2024-11", "2024-12", "2025-01",
-              "2025-02", "2025-03", "2025-04", "2025-05"]
-# old_months = []
-old_months = [f"../pokemon-showdown/logs/{m}" for m in old_months]
 subfolders = [f.path for f in os.scandir(
     "../pokemon-showdown/logs/") if f.is_dir() and f.path[-3] == "-"]
-subfolders = set(subfolders) - set(old_months)
+# Only grabs last 2 months to avoid regenerating replays for old months
+subfolders = sorted(subfolders)[-2:]
 log_json_dict = defaultdict(list)
 
 
